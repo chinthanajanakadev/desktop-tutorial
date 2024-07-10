@@ -1,4 +1,4 @@
-name: Build and Create Executable on Windows
+name: Build and Create Executable windows using pyinstaller
 
 on:
   push:
@@ -16,17 +16,22 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Set up MSVC
-      shell: cmd
-      run: |
-        call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat" || call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat" || call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Auxiliary\Build\vcvars64.bat" || echo "No suitable vcvars64.bat found"
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'  # specify the Python version you need
 
-    - name: Compile test.c
-      shell: cmd
-      run: cl /EHsc test.c /Fe:test_executable.exe
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Create executable
+      run: |
+        pyinstaller --onefile --windowed hello.py
 
     - name: Archive executable
       uses: actions/upload-artifact@v3
       with:
-        name: test_executable
-        path: test_executable.exe
+        name: hello_executable
+        path: dist/hello.exe
